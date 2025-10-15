@@ -1,0 +1,71 @@
+Essa é uma excelente pergunta! Projetar a divisão de um sistema de microserviços em um contexto complexo como o hospitalar é crucial.
+A melhor forma de dividir o sistema não é apenas por tipo de operação (como "consultas" ou "cadastros"), mas sim por domínios de negócio ou capacidades. Pense em quais partes do hospital operam de forma relativamente independente.
+Com base nas classes que você mencionou (e o contexto hospitalar), aqui está uma proposta de divisão em Microserviços Essenciais, usando a abordagem de Domain-Driven Design (DDD) para definir os limites:
+Proposta de Divisão por Microserviços (Domínios de Negócio)
+
+
+1. Serviço de Gerenciamento de Identidade (Identity/Pessoas)
+Foco: Gerenciar todas as informações básicas de quem interage com o sistema.
+
+Classes/Entidades: Pessoa, Endereço (Endereço se liga a Pessoa), Usuário (para login/autenticação).
+
+Responsabilidades:
+Cadastro e manutenção de dados pessoais (nome, CPF, contato, endereço, etc.).
+Autenticação e Autorização (quem é, e o que pode fazer).
+Servir como a fonte primária para os dados de "Pessoa" que outros serviços usarão.
+
+
+
+
+2. Serviço de Gerenciamento de Pessoal (RH/Funcionários)
+Foco: Gerenciar o corpo de funcionários e seus papéis específicos no hospital.
+
+Classes/Entidades: Empregado (que "é" uma Pessoa do Serviço de Identidade), Médico (que "é" um Empregado), Cargo, Setor, Horário de Trabalho.
+
+Responsabilidades:
+
+Cadastro de funcionários, atribuição de cargos e setores.
+Gerenciamento de licenças, férias e horários.
+Manutenção do registro médico (CRM/Registro profissional) e especialidades.
+
+
+
+
+3. Serviço de Gerenciamento de Pacientes e Prontuários
+Foco: Gerenciar o paciente e seu histórico de saúde.
+
+Classes/Entidades: Paciente (que "é" uma Pessoa), Prontuário Médico, Alergia, Condição Crônica.
+
+Responsabilidades:
+
+Vincular uma pessoa ao papel de paciente.
+
+Registro e manutenção do Prontuário Eletrônico do Paciente (PEP).
+
+Registro de diagnósticos, histórico de procedimentos e medicamentos anteriores.
+
+4. Serviço de Agendamento/Consultas
+Foco: Gerenciar a logística de horários, disponibilidade e marcação de atendimentos.
+
+Classes/Entidades: Consulta, Horário Disponível, Local de Atendimento, Bloqueio de Agenda.
+
+Responsabilidades:
+
+Agendar consultas, exames e procedimentos.
+
+Verificar a disponibilidade de Médicos (do Serviço de Pessoal) e salas.
+
+Notificar pacientes e médicos sobre agendamentos (integração com um serviço de Notificação).
+
+5. Serviço de Faturamento/Financeiro
+Foco: Lidar com os aspectos financeiros, como cobranças, convênios e pagamentos.
+
+Classes/Entidades: Fatura, Conta, Convênio, Procedimento Cobrável.
+
+Responsabilidades:
+
+Gerar e processar faturas de consultas, internações e exames.
+
+Gerenciar regras de convênios.
+
+Registro de pagamentos.
