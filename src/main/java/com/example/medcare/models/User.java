@@ -61,6 +61,11 @@ public class User implements UserDetails {
     public void setRole(UserRole role) {
         this.roles.add(role);
     }
+    public void setRoles(List<UserRole> roles){
+        for (UserRole role : roles) {
+            this.roles.add(role);
+        }
+    }
     public long getPersonId() {
         return personId;
     }

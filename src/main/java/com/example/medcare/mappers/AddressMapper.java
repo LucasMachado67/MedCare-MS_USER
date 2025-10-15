@@ -20,7 +20,7 @@ public interface AddressMapper {
     Address toEntityResponse(AddressResponseDTO dto);
     @Mapping(target = "id", ignore = true)
     AddressResponseDTO toDtoResponse(Address entity);
-
+    
     List<Address> toEntityResponse(List<AddressResponseDTO> dtos);
     List<AddressResponseDTO> toDtoResponse(List<Address> entities);
 

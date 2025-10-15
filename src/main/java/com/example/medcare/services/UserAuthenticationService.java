@@ -109,7 +109,7 @@ public class UserAuthenticationService implements UserDetailsService{
         newUser.setUsername(registerDTO.username());
         newUser.setPassword(encryptedPassword);
         newUser.setPersonId(registerDTO.personId());
-        newUser.setRole(registerDTO.role());
+        newUser.setRoles(registerDTO.roles());
         // Salva o novo usuário
         userRepository.save(newUser);
     }
