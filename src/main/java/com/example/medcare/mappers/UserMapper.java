@@ -17,5 +17,6 @@ public interface UserMapper {
     UserResponseDto toUserResponseDTO(User user);
 
     @Mapping(target = "authorities", ignore = true)
+    @Mapping(target = "role", ignore = true)
     User toUser(RegisterRequestDTO dto);
 }

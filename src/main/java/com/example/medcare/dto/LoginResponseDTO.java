@@ -1,10 +1,10 @@
 package com.example.medcare.dto;
 
-import java.util.List;
+import com.example.medcare.enums.UserRole;
 
-
+//Talvez futuramente enviar o userRole junto;
 public record LoginResponseDTO(String token,
                                String username,
                                long personId,
-                               List<String> roles) {
+                               UserRole role) {
 } 

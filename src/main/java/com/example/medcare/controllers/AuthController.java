@@ -1,6 +1,5 @@
 package com.example.medcare.controllers;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +17,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
 
 /**
  * Controlador REST responsável por todas as operações relacionadas à autenticação
@@ -77,34 +77,11 @@ public class AuthController {
      *
      * @return ResponseEntity contendo a Entidade User (que pode ser mapeada para um DTO de resposta)
      * e o status HTTP 200 OK.
-     * @throws RuntimeException se não houver usuário no contexto de segurança (embora o filtro de segurança deva tratar isso).
      */
-    // @GetMapping("/me")
-    // public ResponseEntity<UserResponseDto> getCurrentUser() {
-
-    //     try {
-    //         User user = authenticationService.getAuthenticatedUser(); // Usa seu novo método auxiliar
-            
-    //         // Mapeia os dados do User para o DTO de resposta
-    //         UserResponseDto responseDto = new UserResponseDto(
-    //             user.getId(),
-    //             user.getUsername(),
-    //             user.getRole(),
-    //             user.getPersonId());
-
-    //         return ResponseEntity.ok(responseDto);
-            
-    //     } catch (RuntimeException e) {
-    //         // Se a exceção for "User not authenticated" (ou outra falha de contexto)
-    //         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    //     }
-    // }
-
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser() {
         User user = authenticationService.getAuthenticatedUser();
-        return ResponseEntity.ok(user); 
+        return ResponseEntity.ok(user);
     }
-    
     
 }

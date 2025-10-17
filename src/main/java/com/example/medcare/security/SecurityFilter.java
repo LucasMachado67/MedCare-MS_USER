@@ -29,7 +29,6 @@ public class SecurityFilter extends OncePerRequestFilter{
 
         if(token != null){
             var username = tokenService.validateToken(token);
-            System.out.println("O VALOR DO USERNAME É: " + username);
             UserDetails user = userRepository.findByUsername(username);
 
             if(user != null){
@@ -38,6 +37,17 @@ public class SecurityFilter extends OncePerRequestFilter{
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        // Lista de caminhos a serem ignorados pelo filtro JWT
+        String path = request.getRequestURI();
+        
+        // Lista de caminhos públicos que não exigem token
+        return path.equals("/auth/login") || 
+            path.equals("/auth/register") ||
+            path.equals("/person/create");
     }
 
     private String recoverToken(HttpServletRequest request){
