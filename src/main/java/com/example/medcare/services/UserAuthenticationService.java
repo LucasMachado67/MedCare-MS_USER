@@ -1,5 +1,6 @@
 package com.example.medcare.services;
 
+import com.example.medcare.enums.UserRole;
 import org.springframework.context.ApplicationContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -26,7 +28,7 @@ import com.example.medcare.security.TokenService;
 import jakarta.validation.Valid;
 
 /**
- * Serviço responsável pela lógica de autenticação (login/registro) e gerenciamento de usuários.
+ * Serviço responsável pela lógica de autenticação (‘login’/registry) e gestão de utilizadores.
  * Implementa UserDetailsService para integração com o Spring Security.
  */
 
@@ -34,24 +36,45 @@ import jakarta.validation.Valid;
 public class UserAuthenticationService implements UserDetailsService{
 
 
-    //Injeção do repositoory para acesso ao banco de dados
+    //Injeção do repository para acesso ao banco de dados
     @Autowired
     private UserRepository userRepository;
 
-    //Injeção do service JWT para geração de tokens
+    //Injeção do service JWT para geração de ‘tokens’
     @Autowired
     private TokenService tokenService;
 
     @Autowired
     private ApplicationContext context;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
      /**
      * Carrega o usuário a partir do username (necessário pelo Spring Security).
-     * @param username o nome de usuário (único) a ser buscado.
-     * @return O objeto UserDetails (sua Entidade User) contendo os detalhes do usuário.
+     * @param email o nome de usuário (único) a ser buscado.
      * @throws UsernameNotFoundException se o usuário não for encontrado.
      */
+     public void createUserCredentials(Long personId, String email, String role) {
+
+         // 1. Gerar senha inicial segura (padrão ou randomizada)
+         String initialPassword = "Senha123";
+
+         // 2. Criar e Salvar a Entidade User
+         User newUser = new User();
+         newUser.setPersonId(personId);
+         newUser.setUsername(email);
+         // Criptografe a senha antes de salvar
+         newUser.setPassword(passwordEncoder.encode(initialPassword));
+         // Defina a role (com o prefixo ROLE_ se necessário)
+         // Ex: "MEDIC" -> "ROLE_MEDIC"
+         UserRole roleToSave = UserRole.valueOf(role);
+         newUser.setRole(roleToSave);
+
+         userRepository.save(newUser);
+         //FAZER ESSA LÓGICA FUTURAMENTE..................
+         // 3. Enviar e-mail para o usuário com a senha inicial.
+     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
@@ -65,18 +88,18 @@ public class UserAuthenticationService implements UserDetailsService{
     }
 
      /**
-     * Realiza o processo de autenticação e gera o Token JWT para o usuário.
+     * Realiza o processo de autenticação e gera o ‘Token’ JWT para o usuário.
      * @param data DTO contendo o username e a senha.
-     * @return LoginResponseDTO contendo o token JWT, username e personId.
+     * @return LoginResponseDTO contendo o ‘token’ JWT, username e personId.
      */
     public LoginResponseDTO login(@RequestBody @Valid AuthenticationDTO data){
         try{
             AuthenticationManager authenticationManager = context.getBean(AuthenticationManager.class);
-            // Cria o token de autenticação sem estar autenticado
+            // Cria o ‘token’ de autenticação sem estar autenticado
             var usernamePassword = new UsernamePasswordAuthenticationToken(data.username(), data.password());
             // Autentica o usuário. Se falhar (senha incorreta), lança uma exceção pelo Spring Security.
             var auth = authenticationManager.authenticate(usernamePassword);
-            // Pega o objeto User autenticado
+            // Pega o objeto ‘User’ autenticado
             var user = (User) auth.getPrincipal();
             // Gera o token JWT
             var token = tokenService.generateToken(user);
@@ -94,10 +117,9 @@ public class UserAuthenticationService implements UserDetailsService{
     }
 
     /**
-     * Registra um novo usuário no sistema.
+     * Registrar um novo usuário no sistema.
      * @param registerDTO DTO contendo os dados do novo usuário.
      * @throws UsernameAlreadyExistsException se o nome de usuário já estiver em uso.
-     * @return ResponseEntity.ok().build() para indicar sucesso (200 OK ou 201 Created no Controller).
      */
     public void register(RegisterRequestDTO registerDTO){
 
@@ -106,10 +128,10 @@ public class UserAuthenticationService implements UserDetailsService{
             if (this.userRepository.findByUsername(registerDTO.username()) != null) {
                 throw new UsernameAlreadyExistsException(registerDTO.username());
             }
-            // Criptografa a senha antes de salvar no banco de dados
+            // Criptografia a senha antes de salvar no banco de dados
             String encryptedPassword = new BCryptPasswordEncoder().encode(registerDTO.password());
     
-            // Cria a nova entidade User
+            // Cria a nova entidade ‘User’
             User newUser = new User();
             newUser.setUsername(registerDTO.username());
             newUser.setPassword(encryptedPassword);
@@ -124,9 +146,9 @@ public class UserAuthenticationService implements UserDetailsService{
     }
 
     /**
-     * Recupera o objeto User do contexto de segurança do Spring (após o filtro JWT).
-     * Útil para obter o ID e papéis do usuário logado em rotas protegidas.
-     * @return O objeto User autenticado.
+     * Recupera o objeto ‘User’ do contexto de segurança do Spring (após o filtro JWT).
+     * Útil para obter o ‘ID’ e papéis do usuário logado em rotas protegidas.
+     * @return O objeto ‘User’ autenticado.
      * @throws RuntimeException se não houver usuário autenticado no contexto (embora o filtro geralmente evite isso).
      */
     public User getAuthenticatedUser(){
@@ -137,7 +159,7 @@ public class UserAuthenticationService implements UserDetailsService{
             if(auth == null || !auth.isAuthenticated()){
                 throw new RuntimeException("User not authenticated");
             }
-            // Retorna o objeto principal (a Entidade User)
+            // Retorna o objeto principal (a Entidade ‘User’)
             return (User) auth.getPrincipal();    
         } catch (AccessDeniedException e) {
             throw new AccessDeniedException("403 - Forbidden, necessáro efetuar login", e);
