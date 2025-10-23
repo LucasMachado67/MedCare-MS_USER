@@ -2,12 +2,10 @@ package com.example.medcare.events;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record MedicRegisteredEvent(
+public record UserRegisterEvent(
 
         @JsonProperty("person_id")
         Long person_id,
-        String email,
-        String role //"MEDIC"
-) {
-
-}
+        String username,
+        String role
+) {}

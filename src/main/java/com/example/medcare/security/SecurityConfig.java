@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                 .requestMatchers(HttpMethod.POST, "/person/create").permitAll()
+                .requestMatchers(HttpMethod.GET, "/auth/all").permitAll()
                 // .requestMatchers(HttpMethod.GET, "/auth/me").permitAll()
                 .anyRequest().permitAll()
                 ).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

@@ -1,5 +1,7 @@
 package com.example.medcare.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import com.example.medcare.dto.AuthenticationDTO;
 import com.example.medcare.dto.LoginResponseDTO;
 import com.example.medcare.dto.RegisterRequestDTO;
 import com.example.medcare.models.User;
+import com.example.medcare.repositories.UserRepository;
 import com.example.medcare.services.UserAuthenticationService;
 
 import jakarta.validation.Valid;
@@ -17,6 +20,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 /**
@@ -30,6 +34,8 @@ public class AuthController {
 
     @Autowired
     private UserAuthenticationService authenticationService;
+    @Autowired
+    private UserRepository repository;
 
     /**
      * Endpoint para autenticação de usuário (login).
@@ -83,5 +89,13 @@ public class AuthController {
         User user = authenticationService.getAuthenticatedUser();
         return ResponseEntity.ok(user);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = repository.findAll();
+
+        return ResponseEntity.ok(users);
+    }
+    
     
 }

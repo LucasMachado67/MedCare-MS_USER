@@ -42,6 +42,11 @@ public class User implements UserDetails {
     public UUID getId(){
         return this.id;
     }
+
+    public UUID setId(){
+        return this.id;
+    }   
+
     public void setUsername(String username) {
         this.username = username;
     }
