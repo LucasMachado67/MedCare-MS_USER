@@ -25,4 +25,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
                WHERE username = :username
             """, nativeQuery = true)
     void changePassword (@Param("password") String password,@Param("username") String username);
+
+    User findByPersonId(long id);
 }

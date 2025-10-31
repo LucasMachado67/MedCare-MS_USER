@@ -17,6 +17,7 @@ public class RabbitMQConfig {
     @Value("${medcare.rabbitmq.queue.patient-registered}")
     private String patientQueue;
 
+
     @Bean
     public Queue medicRegisteredQueue() {
         return new Queue(medicQueue, true);

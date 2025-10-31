@@ -2,6 +2,7 @@ package com.example.medcare.services;
 
 import com.example.medcare.enums.UserRole;
 import org.springframework.context.ApplicationContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,10 +21,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.example.medcare.dto.AuthenticationDTO;
 import com.example.medcare.dto.LoginResponseDTO;
 import com.example.medcare.dto.RegisterRequestDTO;
+import com.example.medcare.dto.UserResponseDto;
 import com.example.medcare.exceptions.UsernameAlreadyExistsException;
+import com.example.medcare.mappers.UserMapper;
 import com.example.medcare.models.User;
+import com.example.medcare.producer.UserProducer;
 import com.example.medcare.repositories.UserRepository;
 import com.example.medcare.security.TokenService;
+import com.example.medcare.utils.PasswordGenerator;
 
 import jakarta.validation.Valid;
 
@@ -46,9 +51,15 @@ public class UserAuthenticationService implements UserDetailsService{
 
     @Autowired
     private ApplicationContext context;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private UserProducer userProducer;
+
+    @Autowired
+    private UserMapper mapper;
 
      /**
      * Carrega o usuário a partir do username (necessário pelo Spring Security).
@@ -58,7 +69,7 @@ public class UserAuthenticationService implements UserDetailsService{
      public void createUserCredentials(Long personId, String email, String role) {
 
          // 1. Gerar senha inicial segura (padrão ou randomizada)
-         String initialPassword = "Senha123";
+         String initialPassword = PasswordGenerator.generate();
 
          // 2. Criar e Salvar a Entidade User
          User newUser = new User();
@@ -72,8 +83,9 @@ public class UserAuthenticationService implements UserDetailsService{
          newUser.setRole(roleToSave);
 
          userRepository.save(newUser);
-         //FAZER ESSA LÓGICA FUTURAMENTE..................
+
          // 3. Enviar e-mail para o usuário com a senha inicial.
+        userProducer.publishMessageEmail(newUser, initialPassword);
      }
 
     @Override
@@ -166,4 +178,11 @@ public class UserAuthenticationService implements UserDetailsService{
         }
     }
 
+    public UserResponseDto findByPersonId(Long id){
+        User foundUser = userRepository.findByPersonId(id);
+
+        UserResponseDto response = mapper.toUserResponseDTO(foundUser);
+
+        return response;
+    }
 }

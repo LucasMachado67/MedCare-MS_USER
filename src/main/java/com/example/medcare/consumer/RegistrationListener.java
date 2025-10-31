@@ -1,4 +1,4 @@
-package com.example.medcare.listeners;
+package com.example.medcare.consumer;
 
 import com.example.medcare.enums.UserRole;
 import com.example.medcare.events.UserRegisterEvent;

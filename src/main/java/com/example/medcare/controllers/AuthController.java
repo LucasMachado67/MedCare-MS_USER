@@ -1,7 +1,6 @@
 package com.example.medcare.controllers;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.medcare.dto.AuthenticationDTO;
 import com.example.medcare.dto.LoginResponseDTO;
 import com.example.medcare.dto.RegisterRequestDTO;
+import com.example.medcare.dto.UserResponseDto;
 import com.example.medcare.models.User;
 import com.example.medcare.repositories.UserRepository;
 import com.example.medcare.services.UserAuthenticationService;
@@ -18,6 +18,7 @@ import com.example.medcare.services.UserAuthenticationService;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -95,6 +96,15 @@ public class AuthController {
         List<User> users = repository.findAll();
 
         return ResponseEntity.ok(users);
+    }
+    
+    @GetMapping("/{personId}")
+    public ResponseEntity<UserResponseDto> findByPersonId(@PathVariable long personId){
+        UserResponseDto foundUser = authenticationService.findByPersonId(personId);
+        if (foundUser == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(foundUser);      
     }
     
     
