@@ -172,7 +172,7 @@ public class UserAuthenticationService implements UserDetailsService{
                 throw new RuntimeException("User not authenticated");
             }
             // Retorna o objeto principal (a Entidade ‘User’)
-            return (User) auth.getPrincipal();    
+            return (User) auth.getPrincipal();
         } catch (AccessDeniedException e) {
             throw new AccessDeniedException("403 - Forbidden, necessáro efetuar login", e);
         }

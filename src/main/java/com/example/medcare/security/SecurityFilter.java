@@ -46,7 +46,8 @@ public class SecurityFilter extends OncePerRequestFilter{
         
         // Lista de caminhos públicos que não exigem token
         return path.equals("/auth/login") || 
-            path.equals("/auth/register") ||
+            path.equals("/auth/signup") ||
+            path.equals("auth/validate") || 
             path.equals("/person/create");
     }
 

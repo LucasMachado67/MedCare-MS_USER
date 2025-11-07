@@ -33,13 +33,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+                .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/signup").permitAll()
+                .requestMatchers(HttpMethod.GET, "/auth/validate", "/auth/all").permitAll()
                 .requestMatchers(HttpMethod.POST, "/person/create").permitAll()
-                .requestMatchers(HttpMethod.GET, "/auth/all").permitAll()
                 // .requestMatchers(HttpMethod.GET, "/auth/me").permitAll()
-                .anyRequest().permitAll()
-                ).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .anyRequest().authenticated()
+                )
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
@@ -47,7 +47,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:4200",
+                "http://localhost:8084",
                 "http://localhost:8080"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT"));
