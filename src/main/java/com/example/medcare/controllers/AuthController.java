@@ -25,9 +25,21 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.http.HttpHeaders;
 
 /**
- * Controlador REST responsável por todas as operações relacionadas à autenticação
- * e gerenciamento de conta do usuário no microsserviço ms_user.
- * Inclui endpoints para login, registro e recuperação de dados do usuário autenticado.
+ * Controlador REST responsável pelas operações de autenticação e gerenciamento
+ * de contas de usuário no microsserviço <b>ms_user</b>.
+ *
+ * <p>Fornece endpoints para:</p>
+ * <ul>
+ *     <li>Login</li>
+ *     <li>Registro de novos usuários</li>
+ *     <li>Validação de token</li>
+ *     <li>Recuperação do usuário autenticado</li>
+ *     <li>Busca de usuários por personId</li>
+ *     <li>Listagem de todos os usuários (somente para administradores)</li>
+ * </ul>
+ *
+ * <p>Os métodos utilizam DTOs específicos para garantir segurança e isolamento
+ * entre API e entidades de domínio.</p>
  */
 @RestController
 @RequestMapping("auth")
@@ -38,6 +50,16 @@ public class AuthController {
     @Autowired
     private UserRepository repository;
 
+    /**
+     * Endpoint utilizado por outros microsserviços ou gateways para validar
+     * rapidamente um token JWT recebido no header Authorization.
+     *
+     * <p>Este método não valida assinatura ou permissões — apenas verifica
+     * a estrutura básica do header e se o token foi enviado.</p>
+     *
+     * @param authHeader valor enviado no header "Authorization" no formato "Bearer &lt;token&gt;"
+     * @return 200 OK se o token estiver presente, 401 se inválido e 403 se ausente.
+     */
     @GetMapping("/auth/validate")
     public ResponseEntity<Void> validateToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -54,15 +76,15 @@ public class AuthController {
     }
 
     /**
-     * Endpoint para autenticação de usuário (login).
+     * Endpoint responsável pelo processo de autenticação (login).
      *
-     * Recebe as credenciais (username e password), autentica o usuário
-     * e retorna um JWT (JSON Web Token) para uso em requisições futuras.
+     * <p>Recebe as credenciais do usuário, valida as informações e retorna um
+     * token JWT que permitirá acesso aos endpoints protegidos do sistema.</p>
      *
-     * @param authenticationDTO DTO contendo o username e a senha para autenticação.
-     * @return ResponseEntity contendo o LoginResponseDTO (token, username, personId)
-     * e o status HTTP 200 OK.
-     * @throws org.springframework.security.authentication.BadCredentialsException se as credenciais forem inválidas.
+     * @param authenticationDTO DTO contendo username e password.
+     * @return {@link LoginResponseDTO} contendo o token JWT, username, id da pessoa e role.
+     * @throws org.springframework.security.authentication.BadCredentialsException
+     *         Caso o username ou senha estejam incorretos.
      */
     @PostMapping("/login")
     public LoginResponseDTO login(@RequestBody @Valid AuthenticationDTO authenticationDTO) {
@@ -72,15 +94,18 @@ public class AuthController {
         // return ResponseEntity.ok(authenticationService.login(authenticationDTO, authenticationManager));
     }
 
-    /**
+     /**
      * Endpoint para registrar um novo usuário no sistema.
      *
-     * O método recebe os dados do usuário, criptografa a senha e persiste a nova conta.
+     * <p>O serviço verifica se o username já existe, criptografa a senha e cria
+     * a conta no banco de dados. Este endpoint é utilizado principalmente por
+     * outros microsserviços que registram usuários automaticamente (ex.: médicos
+     * e pacientes).</p>
      *
-     * @param registerRequestDTO DTO contendo os dados para o novo usuário (username, password, role, personId).
-     * @return ResponseEntity com status HTTP 201 Created e corpo vazio, indicando sucesso.
-     * @throws com.hospital.user.exception.UsernameAlreadyExistsException (409 Conflict) se o username já estiver cadastrado.
-     * @throws org.springframework.web.bind.MethodArgumentNotValidException (400 Bad Request) se a validação do DTO falhar.
+     * @param registerRequestDTO DTO contendo username, senha, role e personId.
+     * @return 201 Created caso o registro seja bem-sucedido.
+     * @throws com.example.medcare.exceptions.UsernameAlreadyExistsException
+     *         Caso o username informado já esteja em uso.
      */
     @PostMapping("/signup")
     public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequestDTO registerRequestDTO) {
@@ -92,27 +117,40 @@ public class AuthController {
     }
 
     /**
-     * Endpoint para recuperar os dados do usuário atualmente autenticado.
+     * Retorna os dados do usuário atualmente autenticado com base no token JWT.
      *
-     * Este método é protegido por filtro de segurança (via JWT) e retorna
-     * os detalhes da entidade User logada.
+     * <p>Este endpoint é protegido por filtro JWT e retorna o objeto User
+     * diretamente — podendo futuramente ser substituído por um DTO específico
+     * para maior segurança.</p>
      *
-     * @return ResponseEntity contendo a Entidade User (que pode ser mapeada para um DTO de resposta)
-     * e o status HTTP 200 OK.
+     * @return Entidade {@link User} correspondente ao usuário autenticado.
      */
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser() {
         User user = authenticationService.getAuthenticatedUser();
         return ResponseEntity.ok(user);
     }
-
+    /**
+     * Retorna todos os usuários cadastrados no sistema.
+     *
+     * <p>Este endpoint deve ser utilizado somente por administradores, e pode
+     * futuramente ser protegido por regras de acesso específicas.</p>
+     *
+     * @return Lista de usuários.
+     */
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = repository.findAll();
 
         return ResponseEntity.ok(users);
     }
-    
+     /**
+     * Busca um usuário pelo seu personId — utilizado principalmente pelos
+     * microsserviços de médicos e pacientes para sincronização interna.
+     *
+     * @param personId ID da pessoa associada ao usuário.
+     * @return DTO com ID, username, role e personId, ou 404 caso não exista.
+     */
     @GetMapping("/{personId}")
     public ResponseEntity<UserResponseDto> findByPersonId(@PathVariable long personId){
         UserResponseDto foundUser = authenticationService.findByPersonId(personId);

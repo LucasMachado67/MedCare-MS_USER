@@ -13,26 +13,27 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-
+/**
+ * Serviço responsável pela criação e validação de tokens JWT utilizados
+ * na autenticação do microsserviço ms_user.
+ *
+ * Este serviço encapsula toda a lógica de geração, assinatura e validação
+ * de tokens, utilizando a biblioteca JJWT (io.jsonwebtoken) na versão mais recente.
+ *
+ * O token gerado segue as seguintes regras:
+ * - Assinatura via HMAC-SHA (chave secreta Base64)
+ * - Contém issuer, subject, issuedAt e expiration
+ * - Expira após 2 horas
+ *
+ * O método de validação retorna o username contido no token
+ * (campo "sub" — subject), caso o token seja válido e assinado corretamente.
+ */
 @Service
 public class TokenService {
     
     @Value("${api.security.token.secret}")
     private String secret;
 
-    // public String generateToken(User user){
-    //     try {
-    //         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-
-    //         return JWT.create()
-    //                 .withIssuer("auth")
-    //                 .withSubject(user.getUsername())
-    //                 .withExpiresAt(this.generateExpirationDate())
-    //                 .sign(algorithm);
-    //     } catch(JWTCreationException e){
-    //         throw new RuntimeException("ERROR WHILE GENERATING TOKEN", e);
-    //     }
-    // }
     public String generateToken(User user){
         try {
             // Criar a chave HMAC usando a forma recomendada pelo JJWT

@@ -33,10 +33,15 @@ import com.example.medcare.utils.PasswordGenerator;
 import jakarta.validation.Valid;
 
 /**
- * Serviço responsável pela lógica de autenticação (‘login’/registry) e gestão de utilizadores.
- * Implementa UserDetailsService para integração com o Spring Security.
+ * Serviço responsável pela autenticação, registro e gestão de usuários.
+ *
+ * <p>Esta classe integra com o Spring Security implementando {@link UserDetailsService},
+ * permitindo que o sistema valide credenciais e carregue informações do usuário durante
+ * o processo de autenticação.</p>
+ *
+ * <p>Também é responsável pela criação de credenciais, geração de tokens JWT e envio de
+ * notificações através do serviço de mensageria (RabbitMQ).</p>
  */
-
 @Service
 public class UserAuthenticationService implements UserDetailsService{
 
@@ -61,10 +66,24 @@ public class UserAuthenticationService implements UserDetailsService{
     @Autowired
     private UserMapper mapper;
 
-     /**
-     * Carrega o usuário a partir do username (necessário pelo Spring Security).
-     * @param email o nome de usuário (único) a ser buscado.
-     * @throws UsernameNotFoundException se o usuário não for encontrado.
+      /**
+     * Cria credenciais de acesso para uma pessoa existente no sistema.
+     *
+     * <p>Este método é utilizado quando o módulo de entidade (Person/Medic) solicita
+     * a criação de um usuário baseado em um personId.</p>
+     *
+     * <p>O processo inclui:</p>
+     * <ul>
+     *     <li>Gerar uma senha inicial segura.</li>
+     *     <li>Criar e salvar a entidade {@link User}.</li>
+     *     <li>Criptografar a senha gerada.</li>
+     *     <li>Definir a role informada.</li>
+     *     <li>Enviar um e-mail ao usuário com suas credenciais iniciais.</li>
+     * </ul>
+     *
+     * @param personId ID da pessoa vinculada ao usuário.
+     * @param email e-mail que será usado como username para login.
+     * @param role papel do usuário no sistema (ex.: ADMIN, MEDIC, PATIENT).
      */
      public void createUserCredentials(Long personId, String email, String role) {
 
@@ -88,6 +107,16 @@ public class UserAuthenticationService implements UserDetailsService{
         userProducer.publishMessageEmail(newUser, initialPassword);
      }
 
+     /**
+     * Carrega um usuário pelo username.
+     *
+     * <p>Este método é usado internamente pelo Spring Security durante o processo
+     * de autenticação.</p>
+     *
+     * @param username nome de usuário (e-mail) utilizado para login.
+     * @return detalhes do usuário autenticável.
+     * @throws UsernameNotFoundException se o usuário não existir.
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
         // Busca o usuário. O Spring Security espera que este método lance uma exceção
@@ -99,10 +128,20 @@ public class UserAuthenticationService implements UserDetailsService{
         }
     }
 
-     /**
-     * Realiza o processo de autenticação e gera o ‘Token’ JWT para o usuário.
-     * @param data DTO contendo o username e a senha.
-     * @return LoginResponseDTO contendo o ‘token’ JWT, username e personId.
+    /**
+     * Realiza autenticação e gera um token JWT para o usuário.
+     *
+     * <p>Processo:</p>
+     * <ul>
+     *     <li>Autentica o usuário utilizando AuthenticationManager.</li>
+     *     <li>Valida credenciais.</li>
+     *     <li>Gera token JWT.</li>
+     *     <li>Retorna informações úteis ao frontend.</li>
+     * </ul>
+     *
+     * @param data DTO contendo username e senha.
+     * @return LoginResponseDTO contendo token, username, personId e role.
+     * @throws BadCredentialsException se as credenciais forem inválidas.
      */
     public LoginResponseDTO login(@RequestBody @Valid AuthenticationDTO data){
         try{
@@ -129,9 +168,17 @@ public class UserAuthenticationService implements UserDetailsService{
     }
 
     /**
-     * Registrar um novo usuário no sistema.
-     * @param registerDTO DTO contendo os dados do novo usuário.
-     * @throws UsernameAlreadyExistsException se o nome de usuário já estiver em uso.
+     * Registra um novo usuário no sistema.
+     *
+     * <p>Processo:</p>
+     * <ul>
+     *     <li>Valida se o username já está sendo utilizado.</li>
+     *     <li>Criptografa a senha informada.</li>
+     *     <li>Cria e salva a entidade User.</li>
+     * </ul>
+     *
+     * @param registerDTO informações do novo usuário.
+     * @throws UsernameAlreadyExistsException se o username já existir.
      */
     public void register(RegisterRequestDTO registerDTO){
 
@@ -157,11 +204,14 @@ public class UserAuthenticationService implements UserDetailsService{
 
     }
 
-    /**
-     * Recupera o objeto ‘User’ do contexto de segurança do Spring (após o filtro JWT).
-     * Útil para obter o ‘ID’ e papéis do usuário logado em rotas protegidas.
-     * @return O objeto ‘User’ autenticado.
-     * @throws RuntimeException se não houver usuário autenticado no contexto (embora o filtro geralmente evite isso).
+     /**
+     * Recupera o usuário autenticado do contexto do Spring Security.
+     *
+     * <p>Este método é útil em rotas protegidas em que é necessário saber
+     * quem está realizando a requisição.</p>
+     *
+     * @return o usuário autenticado.
+     * @throws AccessDeniedException se não houver usuário autenticado.
      */
     public User getAuthenticatedUser(){
         try {
@@ -177,7 +227,12 @@ public class UserAuthenticationService implements UserDetailsService{
             throw new AccessDeniedException("403 - Forbidden, necessáro efetuar login", e);
         }
     }
-
+     /**
+     * Recupera um usuário associado a um determinado personId.
+     *
+     * @param id identificador da entidade Person.
+     * @return DTO contendo informações limitadas do usuário.
+     */
     public UserResponseDto findByPersonId(Long id){
         User foundUser = userRepository.findByPersonId(id);
 
