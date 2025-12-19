@@ -15,7 +15,7 @@ import com.example.medcare.enums.UserRole;
  * @param role      Papel (UserRole) do usuário no sistema, definindo permissões de acesso.
  */
 public record LoginResponseDTO(String token,
-                               String username,
+                               String email,
                                long personId,
                                UserRole role) {
 } 

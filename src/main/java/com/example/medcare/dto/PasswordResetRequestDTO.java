@@ -24,7 +24,7 @@ import jakarta.validation.constraints.NotBlank;
  */
 public record PasswordResetRequestDTO(
     @NotBlank(message = "O e-mail não pode ser vazio.")
-    @Email(message = "Formato de e-mail inválido.")
+    @Email(message = "e-mail inválido.")
     String email
 ) {
 

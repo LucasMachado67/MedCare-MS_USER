@@ -28,7 +28,9 @@ public enum UserRole {
     /** Papel padrão de usuário comum. */
     USER("user"),
     /** Papel destinado aos profissionais de saúde. */
-    MEDIC("medic");
+    MEDIC("medic"),
+    /** Papel ao funcionário que irá auxiliar o médico. */
+    ASSISTANT("assistant");
     /** Representação textual do papel. */
     private final String role;
     /**

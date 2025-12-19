@@ -29,11 +29,57 @@ import jakarta.validation.constraints.NotNull;
  *     <li>A senha é criptografada e o usuário é salvo no banco.</li>
  * </ul>
  *
- * @param username Nome de usuário (geralmente o e-mail), obrigatório.
+ * @param email Email do usuário, obrigatório.
  * @param password Senha em texto puro, que será criptografada, obrigatória.
  * @param role Papel (role) do usuário dentro do sistema.
  * @param personId Identificador da entidade Person vinculada ao usuário.
  */
-public record RegisterRequestDTO(@NotNull String username,@NotNull String password,UserRole role, long personId ) {
+public class RegisterRequestDTO {
+
+    
+    @NotNull
+    private String email;
+    
+    @NotNull
+    private String password;
+    
+    @NotNull
+    private UserRole userRole;
+
+    private long personId;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public UserRole getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
+    }
+
+    public long getPersonId() {
+        return personId;
+    }
+
+    public void setPersonId(long personId) {
+        this.personId = personId;
+    }
+
+
     
 }

@@ -7,9 +7,9 @@ package com.example.medcare.dto;
  * contendo o username e a senha informados pelo usuário.
  * </p>
  *
- * @param username Nome de usuário utilizado para autenticação.
+ * @param email Email de usuário utilizado para autenticação.
  * @param password Senha correspondente ao usuário.
  */
-public record AuthenticationDTO(String username, String password) {
+public record AuthenticationDTO(String email, String password) {
     
 }

@@ -36,6 +36,36 @@ import com.example.medcare.enums.UserRole;
  * @param role Papel do usuário no sistema.
  * @param personId ID da entidade Person associada a este usuário.
  */
-public record UserResponseDto(UUID id, String username,UserRole role, long personId) {
+public class UserResponseDto {
 
+    private UUID id;
+    private String email;
+    private UserRole role;
+    private long personId;
+    public UUID getId() {
+        return id;
+    }
+    public void setId(UUID id) {
+        this.id = id;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public UserRole getRole() {
+        return role;
+    }
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+    public long getPersonId() {
+        return personId;
+    }
+    public void setPersonId(long personId) {
+        this.personId = personId;
+    }
+
+    
 }

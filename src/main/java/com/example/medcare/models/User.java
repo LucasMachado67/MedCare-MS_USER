@@ -52,8 +52,8 @@ public class User implements UserDetails {
      * unicidade possa ser aplicada no banco de dados ou no serviço.</p>
      */
     @NotNull
-    @Column(unique = true)
-    private String username;
+    //@Column(unique = true) está comentado temporariamente para testes
+    private String email;
     /**
      * Senha criptografada do usuário.
      *
@@ -94,8 +94,8 @@ public class User implements UserDetails {
         return this.id;
     }   
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmail(String email) {
+        this.email = email;
     }
     public void setPassword(String password) {
         this.password = password;
@@ -122,8 +122,12 @@ public class User implements UserDetails {
     public String getPassword() {
         return password;
     }
+    public String getEmail() {
+        return this.email;
+    }
+
     @Override
     public String getUsername() {
-        return this.username;
+       return this.email;
     }
 }

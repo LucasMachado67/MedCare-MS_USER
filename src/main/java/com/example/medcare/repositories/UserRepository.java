@@ -30,10 +30,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      * <p>Este método utiliza a convenção de nomes do Spring Data JPA para gerar
      * automaticamente a consulta.</p>
      *
-     * @param username nome de usuário a ser pesquisado
+     * @param email email de usuário a ser pesquisado
      * @return o usuário encontrado ou {@code null} caso não exista
      */
-    User findByUsername(String username);
+    User findByEmail(String email);
 
      /**
      * Atualiza a senha de um usuário com base no seu nome de usuário.

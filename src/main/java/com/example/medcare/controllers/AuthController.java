@@ -60,7 +60,7 @@ public class AuthController {
      * @param authHeader valor enviado no header "Authorization" no formato "Bearer &lt;token&gt;"
      * @return 200 OK se o token estiver presente, 401 se inválido e 403 se ausente.
      */
-    @GetMapping("/auth/validate")
+    @GetMapping("/validate")
     public ResponseEntity<Void> validateToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -88,7 +88,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     public LoginResponseDTO login(@RequestBody @Valid AuthenticationDTO authenticationDTO) {
-        authenticationService.loadUserByUsername(authenticationDTO.username());
+        authenticationService.loadUserByUsername(authenticationDTO.email());
         return authenticationService.login(authenticationDTO);
         // O Service retorna o DTO, e o Controller o envolve em 200 OK
         // return ResponseEntity.ok(authenticationService.login(authenticationDTO, authenticationManager));

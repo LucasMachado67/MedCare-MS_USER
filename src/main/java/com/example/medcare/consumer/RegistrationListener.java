@@ -9,41 +9,50 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
+
 /**
  * Listener responsável por consumir eventos de criação de usuários provenientes
- * de outros microsserviços (como cadastro de médicos e pacientes). 
+ * de outros microsserviços (como cadastro de médicos e pacientes).
  *
- * <p>Ao receber o evento {@link UserRegisterEvent} pela fila RabbitMQ correspondente,
+ * <p>
+ * Ao receber o evento {@link UserRegisterEvent} pela fila RabbitMQ
+ * correspondente,
  * o listener cria uma entidade {@link User} básica e delega ao serviço
  * {@link UserAuthenticationService} a responsabilidade de gerar as credenciais
- * de autenticação.</p>
+ * de autenticação.
+ * </p>
  *
- * <p>Este componente faz parte do fluxo de integração assíncrona entre os
+ * <p>
+ * Este componente faz parte do fluxo de integração assíncrona entre os
  * microsserviços do sistema, garantindo que cada novo usuário cadastrado em
  * outro contexto (paciente, médico, etc.) também seja registrado no serviço
- * de autenticação.</p>
+ * de autenticação.
+ * </p>
  */
 @Component
 public class RegistrationListener {
 
     @Autowired
     private UserAuthenticationService service;
-     /**
+
+    /**
      * Ouve a fila de cadastro de médicos e cria automaticamente as credenciais
      * para o novo usuário com o papel {@link UserRole#MEDIC}.
      *
      * @param userRegisterEvent evento contendo personId, username e role originais
      */
     @RabbitListener(queues = "${medcare.rabbitmq.queue.medic-registered}")
-    public void listenMedicCreationQueue(@Payload UserRegisterEvent userRegisterEvent){
-        var user = new User();
-
-        user.setPersonId(userRegisterEvent.person_id());
-        user.setUsername(userRegisterEvent.username());
-        user.setRole(UserRole.MEDIC);
-
-        service.createUserCredentials(user.getPersonId(), user.getUsername(), String.valueOf(user.getRole()));
+    public void listenMedicCreationQueue(@Payload UserRegisterEvent userRegisterEvent) {
+        try {
+            service.createUserCredentials(
+                    userRegisterEvent.person_id(),
+                    userRegisterEvent.username(),
+                    userRegisterEvent.role());
+        } catch (Exception e) {
+            System.err.println("Erro ao processar evento: " + e.getMessage());
+        }
     }
+
     /**
      * Ouve a fila de cadastro de pacientes e cria automaticamente as credenciais
      * para o novo usuário com o papel {@link UserRole#USER}.
@@ -51,12 +60,29 @@ public class RegistrationListener {
      * @param userRegisterEvent evento contendo personId, username e role originais
      */
     @RabbitListener(queues = "${medcare.rabbitmq.queue.patient-registered}")
-    public void listenPatientCreationQueue(@Payload UserRegisterEvent userRegisterEvent){
+    public void listenPatientCreationQueue(@Payload UserRegisterEvent userRegisterEvent) {
         var user = new User();
 
         user.setPersonId(userRegisterEvent.person_id());
-        user.setUsername(userRegisterEvent.username());
+        user.setEmail(userRegisterEvent.username());
         user.setRole(UserRole.USER);
+
+        service.createUserCredentials(user.getPersonId(), user.getUsername(), String.valueOf(user.getRole()));
+    }
+
+    /**
+     * Ouve a fila de cadastro de assistentes e cria automaticamente as credenciais
+     * para o novo usuário com o papel {@link UserRole#USER}.
+     *
+     * @param userRegisterEvent evento contendo personId, username e role originais
+     */
+    @RabbitListener(queues = "${medcare.rabbitmq.queue.assistant-registered}")
+    public void listenAssistantCreationQueue(@Payload UserRegisterEvent userRegisterEvent) {
+        var user = new User();
+
+        user.setPersonId(userRegisterEvent.person_id());
+        user.setEmail(userRegisterEvent.username());
+        user.setRole(UserRole.ASSISTANT);
 
         service.createUserCredentials(user.getPersonId(), user.getUsername(), String.valueOf(user.getRole()));
     }
