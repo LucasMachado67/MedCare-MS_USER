@@ -28,7 +28,7 @@ import com.example.medcare.models.User;
 import com.example.medcare.producer.UserProducer;
 import com.example.medcare.repositories.UserRepository;
 import com.example.medcare.security.TokenService;
-import com.example.medcare.utils.PasswordGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import jakarta.validation.Valid;
 
@@ -94,15 +94,16 @@ public class UserAuthenticationService implements UserDetailsService {
      * @param personId ID da pessoa vinculada ao usuário.
      * @param email    e-mail que será usado como username para login.
      * @param role     papel do usuário no sistema (ex.: ADMIN, MEDIC, PATIENT).
+     * @throws JsonProcessingException 
      */
-    public void createUserCredentials(Long personId, String email, String role) {
+    public void createUserCredentials(Long personId, String email, String role) throws JsonProcessingException {
 
         if (userRepository.findByPersonId(personId) != null) {
             System.out.println("Usuário já existe para personId=" + personId);
             return; 
         }
-        // 1. Gerar senha inicial segura (padrão ou randomizada)
-        String initialPassword = PasswordGenerator.generate();
+        // 1. Gerar senha inicial segura (comeco do email + 123), depois será solicitado para troca de senha
+        String initialPassword = email.split("@")[0] + 123;
 
         // 2. Criar e Salvar a Entidade User
         User newUser = new User();

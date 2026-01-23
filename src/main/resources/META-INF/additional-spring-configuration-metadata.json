@@ -23,5 +23,20 @@
     "name": "medcare.rabbitmq.queue.assistant-registered",
     "type": "java.lang.String",
     "description": "A description for 'medcare.rabbitmq.queue.assistant-registered'"
+  },
+  {
+    "name": "medcare.aws.sqs.queue.medic.register",
+    "type": "java.lang.String",
+    "description": "A description for 'medcare.aws.sqs.queue.medic.register'"
+  },
+  {
+    "name": "medcare.aws.sqs.queue.notification.email",
+    "type": "java.lang.String",
+    "description": "A description for 'medcare.aws.sqs.queue.notification.email'"
+  },
+  {
+    "name": "spring.cloud.aws.sqs.listener.message-converter.payload-type-header",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.cloud.aws.sqs.listener.message-converter.payload-type-header'"
   }
 ]}

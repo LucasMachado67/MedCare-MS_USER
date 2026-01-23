@@ -3,6 +3,11 @@ package com.example.medcare.consumer;
 import com.example.medcare.enums.UserRole;
 import com.example.medcare.events.UserRegisterEvent;
 import com.example.medcare.services.UserAuthenticationService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.awspring.cloud.sqs.annotation.SqsListener;
+
 import com.example.medcare.models.User;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -41,13 +46,16 @@ public class RegistrationListener {
      *
      * @param userRegisterEvent evento contendo personId, username e role originais
      */
-    @RabbitListener(queues = "${medcare.rabbitmq.queue.medic-registered}")
-    public void listenMedicCreationQueue(@Payload UserRegisterEvent userRegisterEvent) {
+    @SqsListener("MedicQueue")
+    public void listenMedicCreationQueue(String payload) {
         try {
+            UserRegisterEvent event =
+                new ObjectMapper().readValue(payload, UserRegisterEvent.class);
+
             service.createUserCredentials(
-                    userRegisterEvent.person_id(),
-                    userRegisterEvent.username(),
-                    userRegisterEvent.role());
+                event.person_id(),
+                event.username(),
+                "MEDIC");
         } catch (Exception e) {
             System.err.println("Erro ao processar evento: " + e.getMessage());
         }
@@ -58,9 +66,10 @@ public class RegistrationListener {
      * para o novo usuário com o papel {@link UserRole#USER}.
      *
      * @param userRegisterEvent evento contendo personId, username e role originais
+     * @throws JsonProcessingException 
      */
     @RabbitListener(queues = "${medcare.rabbitmq.queue.patient-registered}")
-    public void listenPatientCreationQueue(@Payload UserRegisterEvent userRegisterEvent) {
+    public void listenPatientCreationQueue(@Payload UserRegisterEvent userRegisterEvent) throws JsonProcessingException {
         var user = new User();
 
         user.setPersonId(userRegisterEvent.person_id());
@@ -75,9 +84,10 @@ public class RegistrationListener {
      * para o novo usuário com o papel {@link UserRole#USER}.
      *
      * @param userRegisterEvent evento contendo personId, username e role originais
+     * @throws JsonProcessingException 
      */
     @RabbitListener(queues = "${medcare.rabbitmq.queue.assistant-registered}")
-    public void listenAssistantCreationQueue(@Payload UserRegisterEvent userRegisterEvent) {
+    public void listenAssistantCreationQueue(@Payload UserRegisterEvent userRegisterEvent) throws JsonProcessingException {
         var user = new User();
 
         user.setPersonId(userRegisterEvent.person_id());
