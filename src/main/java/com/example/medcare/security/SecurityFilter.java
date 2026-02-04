@@ -31,6 +31,12 @@ public class SecurityFilter extends OncePerRequestFilter {
         FilterChain filterChain
     ) throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+            System.out.println("Path Liberado: " + path);
+        if (path.contains("login") || path.contains("signup")) {
+            filterChain.doFilter(request, response); // Passa direto sem validar token
+            return;
+        }
         String token = recoverToken(request);
 
         if (token != null) {
@@ -54,17 +60,6 @@ public class SecurityFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getRequestURI();
-
-        // Lista de rotas públicas
-        return path.equals("/auth/login") ||
-               path.equals("/auth/signup") ||
-               path.equals("/auth/validate") ||
-               path.equals("/auth/all") ||
-               path.equals("/person/create");
-    }
 
     private String recoverToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
