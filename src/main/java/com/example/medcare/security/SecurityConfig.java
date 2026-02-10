@@ -11,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,7 +55,8 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .csrf(csrf -> csrf.disable())
+                .cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/signup").permitAll()
@@ -62,6 +64,8 @@ public class SecurityConfig {
                 .requestMatchers("/error").permitAll()
                 .requestMatchers(HttpMethod.POST, "/person/create").permitAll()
                 // .requestMatchers(HttpMethod.GET, "/auth/me").permitAll()
+                                .requestMatchers("/medic/**").authenticated()
+                                .requestMatchers("/patient/**").authenticated()
                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
@@ -79,8 +83,8 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:8084",
-                "http://localhost:8080"
+                "http://localhost:8085",
+                "http://localhost:8082"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT"));
         configuration.setAllowedHeaders(List.of("*"));
@@ -92,11 +96,11 @@ public class SecurityConfig {
     }
     /**
      * Bean responsável por fornecer o AuthenticationManager, necessário para
-     * o processo de autenticação no login.
+     * o processo de autenticação no 'login'.
      *
      * @param authenticationConfiguration configuração interna do Spring Boot
      * @return AuthenticationManager apto a autenticar usuários
-     * @throws Exception caso o manager não possa ser criado
+     * @throws Exception caso o ‘manager’ não possa ser criado
      */
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {

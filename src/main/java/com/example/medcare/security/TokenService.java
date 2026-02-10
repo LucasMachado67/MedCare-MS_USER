@@ -15,16 +15,13 @@ import io.jsonwebtoken.security.Keys;
 
 /**
  * Serviço responsável pela criação e validação de tokens JWT utilizados
- * na autenticação do microsserviço ms_user.
- *
+ * na autenticação do microservice ms_user.
  * Este serviço encapsula toda a lógica de geração, assinatura e validação
  * de tokens, utilizando a biblioteca JJWT (io.jsonwebtoken) na versão mais recente.
- *
  * O token gerado segue as seguintes regras:
  * - Assinatura via HMAC-SHA (chave secreta Base64)
  * - Contém issuer, subject, issuedAt e expiration
  * - Expira após 2 horas
- *
  * O método de validação retorna o username contido no token
  * (campo "sub" — subject), caso o token seja válido e assinado corretamente.
  */
@@ -37,13 +34,14 @@ public class TokenService {
     public String generateToken(User user){
         try {
             // Criar a chave HMAC usando a forma recomendada pelo JJWT
-            java.security.Key signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+            java.security.Key signingKey = Keys.hmacShaKeyFor(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             return Jwts.builder()
                         .setIssuer("auth") // Nome do emissor (Issuer)
-                        .setSubject(user.getUsername()) // O nome/ID do usuário
+                        .setSubject(user.getUsername()) // O nome'ID' do usuário
                         .setIssuedAt(Date.from(Instant.now())) // Tempo de emissão
                         .setExpiration(Date.from(this.generateExpirationDate())) // Tempo de expiração
-                        .signWith(signingKey) // Assinar com a chave HMAC256
+                        .claim("mustChangePassword", user.IsFirstPassword())
+                        .signWith(signingKey) // Assinar com a chave 'HMAC256'
                         .compact();
 
         } catch(Exception e){
@@ -65,7 +63,7 @@ public class TokenService {
                 .getSubject(); // Retorna o Subject (username)
 
     } catch (Exception e) {
-        e.printStackTrace();
+            System.out.println("Authentication token invalid: " + e.getMessage());
         return null; // Token inválido
     }
 

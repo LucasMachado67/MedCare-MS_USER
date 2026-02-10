@@ -59,7 +59,7 @@ public class UserProducer {
         emailDto.setText("Cadastro de usuário realizado com sucesso seja bem vindo(a)! \nAgradecemos o seu cadastro." +
         "\n Seu usuário de login é: " + user.getUsername() +
         "\n Senha: " + initialPassword + 
-        "\n Recomendamos trocar a senha após o primeiro senha");
+        "\n Recomendamos trocar a senha após a primeira utilização");
         
         String json = objectMapper.writeValueAsString(emailDto);
         //Enviando para a fila

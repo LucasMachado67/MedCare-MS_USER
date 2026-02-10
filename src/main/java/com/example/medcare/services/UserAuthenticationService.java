@@ -33,7 +33,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 
 /**
- * Serviço responsável pela autenticação, registro e gestão de usuários.
+ * Serviço responsável pela autenticação, registry e gestão de usuários.
  *
  * <p>
  * Esta classe integra com o Spring Security implementando
@@ -44,9 +44,9 @@ import jakarta.validation.Valid;
  * </p>
  *
  * <p>
- * Também é responsável pela criação de credenciais, geração de tokens JWT e
+ * Também é responsável pela criação de credenciais, geração de ‘tokens’ JWT e
  * envio de
- * notificações através do serviço de mensageria (RabbitMQ).
+ * notificações através do serviço de mensageria (AmazonSQS).
  * </p>
  */
 @Service
@@ -86,23 +86,22 @@ public class UserAuthenticationService implements UserDetailsService {
      * <ul>
      * <li>Gerar uma senha inicial segura.</li>
      * <li>Criar e salvar a entidade {@link User}.</li>
-     * <li>Criptografar a senha gerada.</li>
+     * <li>Cryptographic da senha gerada.</li>
      * <li>Definir a role informada.</li>
-     * <li>Enviar um e-mail ao usuário com suas credenciais iniciais.</li>
+     * <li>Enviar um e-mail ao usuário com as suas credenciais iniciais.</li>
      * </ul>
      *
-     * @param personId ID da pessoa vinculada ao usuário.
-     * @param email    e-mail que será usado como username para login.
+     * @param personId 'ID' da pessoa vinculada ao usuário.
+     * @param email    e-mail que será usado como username para 'login'.
      * @param role     papel do usuário no sistema (ex.: ADMIN, MEDIC, PATIENT).
-     * @throws JsonProcessingException 
      */
     public void createUserCredentials(Long personId, String email, String role) throws JsonProcessingException {
 
         if (userRepository.findByPersonId(personId) != null) {
             System.out.println("Usuário já existe para personId=" + personId);
-            return; 
+            return;
         }
-        // 1. Gerar senha inicial segura (comeco do email + 123), depois será solicitado para troca de senha
+        // 1. Gerar senha inicial segura (começo do e-mail + 123), depois será solicitado para troca de senha
         String initialPassword = email.split("@")[0] + 123;
 
         // 2. Criar e Salvar a Entidade User
@@ -130,8 +129,8 @@ public class UserAuthenticationService implements UserDetailsService {
      * de autenticação.
      * </p>
      *
-     * @param username nome de usuário (e-mail) utilizado para login.
-     * @return detalhes do usuário autenticável.
+     * @param email nome de usuário (e-mail) utilizado para ‘login’.
+     * @return detalhes do usuário authenticated.
      * @throws UsernameNotFoundException se o usuário não existir.
      */
     @Override
@@ -144,7 +143,7 @@ public class UserAuthenticationService implements UserDetailsService {
     }
 
     /**
-     * Realiza autenticação e gera um token JWT para o usuário.
+     * Realiza autenticação e gera um ‘token’ JWT para o usuário.
      *
      * <p>
      * Processo:
@@ -178,22 +177,23 @@ public class UserAuthenticationService implements UserDetailsService {
                     token,
                     user.getUsername(),
                     user.getPersonId(),
-                    user.getRole());
+                    user.getRole(),
+                    user.IsFirstPassword());
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Credenciais inválidas: " + e.getLocalizedMessage());
         }
     }
 
     /**
-     * Registra um novo usuário no sistema.
+     * Registry um novo usuário no sistema.
      *
      * <p>
      * Processo:
      * </p>
      * <ul>
-     * <li>Valida se o username já está sendo utilizado.</li>
+     * <li>Valida se o username já está a ser utilizado.</li>
      * <li>Criptografa a senha informada.</li>
-     * <li>Cria e salva a entidade User.</li>
+     * <li>Cria e salva a entidade 'User'.</li>
      * </ul>
      *
      * @param registerDTO informações do novo usuário.
@@ -258,8 +258,28 @@ public class UserAuthenticationService implements UserDetailsService {
     public UserResponseDto findByPersonId(Long id) {
         User foundUser = userRepository.findByPersonId(id);
 
-        UserResponseDto response = mapper.toUserResponseDTO(foundUser);
+        return mapper.toUserResponseDTO(foundUser);
+    }
 
-        return response;
+    public void updatePassword(String newPassword){
+        // 1. Pega o "Principal" do contexto.
+        // O erro diz que isso aqui está vindo como String!
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String email;
+        if (principal instanceof UserDetails userDetails) {
+            email = userDetails.getUsername();
+        } else {
+            email = principal.toString();
+        }
+        System.out.println("Buscando usuário com o identificador: [" + email + "]");
+        // 2. Busca o usuário real no banco pelo e-mail
+        User user = userRepository.findByEmail(email);
+
+        // 3. Atualiza a senha (criptografada) e a flag
+        user.setPassword(new BCryptPasswordEncoder().encode(newPassword));
+        user.setIsFirstPassword(false);
+
+        userRepository.save(user);
     }
 }

@@ -12,6 +12,7 @@ import com.example.medcare.models.User;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
@@ -40,60 +41,26 @@ public class RegistrationListener {
     @Autowired
     private UserAuthenticationService service;
 
-    /**
-     * Ouve a fila de cadastro de médicos e cria automaticamente as credenciais
-     * para o novo usuário com o papel {@link UserRole#MEDIC}.
-     *
-     * @param userRegisterEvent evento contendo personId, username e role originais
-     */
-    @SqsListener("MedicQueue")
-    public void listenMedicCreationQueue(String payload) {
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @SqsListener(value = "${medcare.aws.sqs.queue.entity.register}")
+    public void listenUserRegistrationQueue(String payload) {
         try {
-            UserRegisterEvent event =
-                new ObjectMapper().readValue(payload, UserRegisterEvent.class);
+            // Convertendo o JSON para o objeto de evento
+            UserRegisterEvent event = objectMapper.readValue(payload, UserRegisterEvent.class);
+
+            System.out.println("Processando registry para: " + event.username() + " com role: " + event.role());
 
             service.createUserCredentials(
-                event.person_id(),
-                event.username(),
-                "MEDIC");
+                    event.person_id(),
+                    event.username(),
+                    event.role()
+            );
+
         } catch (Exception e) {
-            System.err.println("Erro ao processar evento: " + e.getMessage());
+            System.err.println("Erro ao processar evento de registro: " + e.getMessage());
+            // Aqui você poderia tratar redrive ou dead letter queues
         }
-    }
-
-    /**
-     * Ouve a fila de cadastro de pacientes e cria automaticamente as credenciais
-     * para o novo usuário com o papel {@link UserRole#USER}.
-     *
-     * @param userRegisterEvent evento contendo personId, username e role originais
-     * @throws JsonProcessingException 
-     */
-    @RabbitListener(queues = "${medcare.rabbitmq.queue.patient-registered}")
-    public void listenPatientCreationQueue(@Payload UserRegisterEvent userRegisterEvent) throws JsonProcessingException {
-        var user = new User();
-
-        user.setPersonId(userRegisterEvent.person_id());
-        user.setEmail(userRegisterEvent.username());
-        user.setRole(UserRole.USER);
-
-        service.createUserCredentials(user.getPersonId(), user.getUsername(), String.valueOf(user.getRole()));
-    }
-
-    /**
-     * Ouve a fila de cadastro de assistentes e cria automaticamente as credenciais
-     * para o novo usuário com o papel {@link UserRole#USER}.
-     *
-     * @param userRegisterEvent evento contendo personId, username e role originais
-     * @throws JsonProcessingException 
-     */
-    @RabbitListener(queues = "${medcare.rabbitmq.queue.assistant-registered}")
-    public void listenAssistantCreationQueue(@Payload UserRegisterEvent userRegisterEvent) throws JsonProcessingException {
-        var user = new User();
-
-        user.setPersonId(userRegisterEvent.person_id());
-        user.setEmail(userRegisterEvent.username());
-        user.setRole(UserRole.ASSISTANT);
-
-        service.createUserCredentials(user.getPersonId(), user.getUsername(), String.valueOf(user.getRole()));
     }
 }

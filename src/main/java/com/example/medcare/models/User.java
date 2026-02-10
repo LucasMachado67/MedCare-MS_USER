@@ -82,6 +82,12 @@ public class User implements UserDetails {
     @NotNull
     @Column(unique = true)
     private long personId;
+    /**
+     * Varíavel que será verdadeira quando o usuário for criado automáticamente pelo sistema e
+     * fará com que troque de senha no primeiro acesso.
+     */
+    @Column(name = "first_password")
+    private boolean isFirstPassword = true;
     //Construtor padrão para o JPA
     public User(){}
     
@@ -129,5 +135,13 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
        return this.email;
+    }
+
+    public void setIsFirstPassword(boolean isFirstPassword){
+        this.isFirstPassword = isFirstPassword;
+    }
+
+    public boolean IsFirstPassword(){
+        return isFirstPassword;
     }
 }
