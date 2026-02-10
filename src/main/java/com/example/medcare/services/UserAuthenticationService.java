@@ -136,13 +136,11 @@ public class UserAuthenticationService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        // Busca o usuário. O Spring Security espera que este método lance uma exceção
-        // se o usuário não existir.
-        try {
-            return userRepository.findByEmail(email);
-        } catch (UsernameNotFoundException e) {
-            throw new UsernameNotFoundException("O usuário informado não existe");
+        UserDetails user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado");
         }
+        return user;
     }
 
     /**

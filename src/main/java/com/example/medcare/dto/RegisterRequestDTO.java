@@ -31,7 +31,7 @@ import jakarta.validation.constraints.NotNull;
  *
  * @param email Email do usuário, obrigatório.
  * @param password Senha em texto puro, que será criptografada, obrigatória.
- * @param role Papel (role) do usuário dentro do sistema.
+ * @param userRole Papel (role) do usuário dentro do sistema.
  * @param personId Identificador da entidade Person vinculada ao usuário.
  */
 public class RegisterRequestDTO {

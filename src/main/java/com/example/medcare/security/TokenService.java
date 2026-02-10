@@ -55,7 +55,7 @@ public class TokenService {
     public String validateToken(String token){
         try {
         // Usar JJWT para consistência com o gerador e o Gateway
-        java.security.Key signingKey = Keys.hmacShaKeyFor(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        java.security.Key signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
 
         return Jwts.parserBuilder()
                 .setSigningKey(signingKey)

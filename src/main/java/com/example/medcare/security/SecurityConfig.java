@@ -59,6 +59,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/signup").permitAll()
                 .requestMatchers(HttpMethod.GET, "/auth/validate", "/auth/all").permitAll()
+                .requestMatchers("/error").permitAll()
                 .requestMatchers(HttpMethod.POST, "/person/create").permitAll()
                 // .requestMatchers(HttpMethod.GET, "/auth/me").permitAll()
                 .anyRequest().authenticated()
@@ -66,6 +67,7 @@ public class SecurityConfig {
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
      /**
      * Configuração de CORS para permitir comunicação com frontends específicos.
      *
