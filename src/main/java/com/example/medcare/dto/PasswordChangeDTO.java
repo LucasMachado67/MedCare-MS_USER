@@ -1,7 +1,6 @@
 package com.example.medcare.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 /**
  * DTO utilizado no processo de redefinição de senha.
  * <p>

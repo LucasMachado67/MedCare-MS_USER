@@ -3,6 +3,8 @@ package com.example.medcare.security;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,12 +37,16 @@ public class TokenService {
         try {
             // Criar a chave HMAC usando a forma recomendada pelo JJWT
             java.security.Key signingKey = Keys.hmacShaKeyFor(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            //passando a role e isFirstPassword para os outros sistemas atráves do token gerado
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("role", user.getRole().name());
+            claims.put("mustChangePassword", user.IsFirstPassword());
             return Jwts.builder()
                         .setIssuer("auth") // Nome do emissor (Issuer)
                         .setSubject(user.getUsername()) // O nome'ID' do usuário
                         .setIssuedAt(Date.from(Instant.now())) // Tempo de emissão
                         .setExpiration(Date.from(this.generateExpirationDate())) // Tempo de expiração
-                        .claim("mustChangePassword", user.IsFirstPassword())
+                        .setClaims(claims)
                         .signWith(signingKey) // Assinar com a chave 'HMAC256'
                         .compact();
 

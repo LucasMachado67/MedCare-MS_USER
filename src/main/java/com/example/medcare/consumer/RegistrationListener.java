@@ -1,19 +1,14 @@
 package com.example.medcare.consumer;
 
-import com.example.medcare.enums.UserRole;
 import com.example.medcare.events.UserRegisterEvent;
 import com.example.medcare.services.UserAuthenticationService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.awspring.cloud.sqs.annotation.SqsListener;
 
 import com.example.medcare.models.User;
 
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
