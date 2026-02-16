@@ -29,24 +29,25 @@ import io.jsonwebtoken.security.Keys;
  */
 @Service
 public class TokenService {
-    
+
     @Value("${api.security.token.secret}")
     private String secret;
 
     public String generateToken(User user){
         try {
             // Criar a chave HMAC usando a forma recomendada pelo JJWT
-            java.security.Key signingKey = Keys.hmacShaKeyFor(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            //passando a role e isFirstPassword para os outros sistemas atráves do token gerado
+            // Altere esta linha no MS-User (TokenService.java)
+            java.security.Key signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+            //passando a role e isFirstPassword para os outros sistemas através do 'token' gerado
             Map<String, Object> claims = new HashMap<>();
             claims.put("role", user.getRole().name());
             claims.put("mustChangePassword", user.IsFirstPassword());
             return Jwts.builder()
                         .setIssuer("auth") // Nome do emissor (Issuer)
+                        .setClaims(claims)
                         .setSubject(user.getUsername()) // O nome'ID' do usuário
                         .setIssuedAt(Date.from(Instant.now())) // Tempo de emissão
                         .setExpiration(Date.from(this.generateExpirationDate())) // Tempo de expiração
-                        .setClaims(claims)
                         .signWith(signingKey) // Assinar com a chave 'HMAC256'
                         .compact();
 
