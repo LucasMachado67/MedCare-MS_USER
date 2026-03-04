@@ -178,6 +178,7 @@ public class UserAuthenticationService implements UserDetailsService {
                     user.getUsername(),
                     user.getPersonId(),
                     user.getRole(),
+                    user.getTenantId(),
                     user.IsFirstPassword());
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Credenciais inválidas: " + e.getLocalizedMessage());
@@ -199,7 +200,7 @@ public class UserAuthenticationService implements UserDetailsService {
      * @param registerDTO informações do novo usuário.
      * @throws UsernameAlreadyExistsException se o username já existir.
      */
-    public void register(RegisterRequestDTO registerDTO) {
+    public void register(RegisterRequestDTO registerDTO, String tenantId) {
 
         try {
             // Validação: Verifica se o usuário já existe
@@ -215,6 +216,7 @@ public class UserAuthenticationService implements UserDetailsService {
             newUser.setPassword(encryptedPassword);
             newUser.setPersonId(registerDTO.getPersonId());
             newUser.setRole(registerDTO.getUserRole());
+            newUser.setTenantId(tenantId);
             // Salva o novo usuário
             userRepository.save(newUser);
         } catch (UsernameAlreadyExistsException e) {

@@ -10,5 +10,4 @@ public class SqsConfig {
     SqsClient sqsClient = SqsClient.builder()
                 .region(Region.SA_EAST_1)
                 .build();
-
 }
