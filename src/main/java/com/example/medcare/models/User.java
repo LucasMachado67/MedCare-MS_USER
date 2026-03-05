@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.medcare.enums.UserRole;
+import com.example.medcare.tenant.BaseTenant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,7 +36,7 @@ import jakarta.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "user_credentials")
-public class User implements UserDetails {
+public class User extends BaseTenant implements UserDetails {
     
     /**
      * Identificador único da credencial de usuário.

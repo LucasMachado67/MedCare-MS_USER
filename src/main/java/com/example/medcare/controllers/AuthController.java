@@ -65,6 +65,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        @SuppressWarnings("unused")
         String token = authHeader.substring(7);
 
         return ResponseEntity.ok().build();
@@ -104,9 +105,9 @@ public class AuthController {
      *         Caso o username informado já esteja em uso.
      */
     @PostMapping("/signup")
-    public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequestDTO registerRequestDTO) {
+    public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequestDTO registerRequestDTO, String tenantId) {
 
-        authenticationService.register(registerRequestDTO);
+        authenticationService.register(registerRequestDTO, tenantId);
         // Retorna 201 Created, que é o padrão REST para criação bem-sucedida.
         return ResponseEntity.status(HttpStatus.CREATED).build();
     

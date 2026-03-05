@@ -42,6 +42,7 @@ public class TokenService {
             Map<String, Object> claims = new HashMap<>();
             claims.put("role", user.getRole().name());
             claims.put("mustChangePassword", user.IsFirstPassword());
+            claims.put("tenant_id", user.getTenantId());
             return Jwts.builder()
                         .setIssuer("auth") // Nome do emissor (Issuer)
                         .setClaims(claims)
