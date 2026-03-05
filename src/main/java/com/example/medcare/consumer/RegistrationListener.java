@@ -55,7 +55,6 @@ public class RegistrationListener {
 
         } catch (Exception e) {
             System.err.println("Erro ao processar evento de registro: " + e.getMessage());
-            // Aqui você poderia tratar redrive ou dead letter queues
         }
     }
 }

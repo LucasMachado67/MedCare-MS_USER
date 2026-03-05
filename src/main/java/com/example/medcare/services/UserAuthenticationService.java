@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.medcare.dto.AuthenticationDTO;
@@ -114,6 +115,7 @@ public class UserAuthenticationService implements UserDetailsService {
         // Ex: "MEDIC" -> "ROLE_MEDIC"
         UserRole roleToSave = UserRole.valueOf(role);
         newUser.setRole(roleToSave);
+        newUser.setIsFirstPassword(true);
 
         userRepository.save(newUser);
 
@@ -134,8 +136,10 @@ public class UserAuthenticationService implements UserDetailsService {
      * @throws UsernameNotFoundException se o usuário não existir.
      */
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserDetails user = userRepository.findByEmail(email);
+        System.out.println(user);
         if (user == null) {
             throw new UsernameNotFoundException("Usuário não encontrado");
         }
