@@ -30,6 +30,4 @@ public class CompanyRegisterDTO {
     public void setPassword(String password) {
         this.password = password;
     }
-    
-    
 }
