@@ -28,7 +28,7 @@ import jakarta.persistence.MappedSuperclass;
  */
 @MappedSuperclass
 public abstract class BaseTenant {
-    @TenantId
+    //@TenantId
     @Column(name = "tenant_id")
     private String tenantId;
 

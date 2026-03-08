@@ -33,13 +33,11 @@ public class CompanyProducer {
     private String CompanyCreationQueue;
 
     public void sendCompanyInfo(CompanyCreatedEvent event) throws JsonProcessingException{
-
         System.out.println("Enviando evento de criação para o tenant: " + event.id());
         String json = objectMapper.writeValueAsString(event);
         sqsTemplate.send(to -> to
                 .queue(CompanyCreationQueue)
                 .payload(json));
                 System.out.println("Mensagem enviada");
-
     }
 }

@@ -53,7 +53,7 @@ public class CompanyService {
 
         userRepository.save(admin);
 
-        //Evento de envio de e-mail para o serivço de notificação sobre o user ADMIN
+        //Evento de envio de e-mail para o serviço de notificação sobre o 'user' ADMIN
         userProducer.publishMessageEmail(admin, dto.getPassword());
         //Evento de criação dos dados restantes da empresa no sistema de entidades
         CompanyCreatedEvent event = new CompanyCreatedEvent(
