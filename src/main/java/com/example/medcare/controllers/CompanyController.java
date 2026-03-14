@@ -5,6 +5,9 @@ import com.example.medcare.dto.CompanyRegisterDTO;
 import com.example.medcare.services.CompanyService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
+
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +27,9 @@ public class CompanyController {
     }
 
     @GetMapping("/{tenantId}")
-    public ResponseEntity<String> getCompanyNameById(@PathVariable String tenantId){
+    public ResponseEntity<Map<String, String>> getCompanyNameById(@PathVariable String tenantId){
 
         String response = service.getCompanyNameById(tenantId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("companyName", response));
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.medcare.dto.AuthenticationDTO;
@@ -51,6 +52,7 @@ import jakarta.validation.Valid;
  * </p>
  */
 @Service
+@Validated
 public class UserAuthenticationService implements UserDetailsService {
 
     // Injeção do repository para acesso ao banco de dados
