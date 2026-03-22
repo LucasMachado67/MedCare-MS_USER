@@ -70,10 +70,10 @@ public class TokenService {
                 .getBody()
                 .getSubject(); // Retorna o Subject (username)
 
-    } catch (Exception e) {
-            System.out.println("Authentication token invalid: " + e.getMessage());
-        return null; // Token inválido
-    }
+        } catch (Exception e) {
+                System.out.println("Authentication token invalid: " + e.getMessage());
+            return null; // Token inválido
+        }
 
     }
 

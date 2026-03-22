@@ -98,7 +98,7 @@ public class UserAuthenticationService implements UserDetailsService {
      * @param email    e-mail que será usado como username para 'login'.
      * @param role     papel do usuário no sistema (ex.: ADMIN, MEDIC, PATIENT).
      */
-    public void createUserCredentials(Long personId, String email, String role) throws JsonProcessingException {
+    public void createUserCredentials(Long personId, String email, String role, String tenantId) throws JsonProcessingException {
 
         if (userRepository.findByPersonId(personId) != null) {
             System.out.println("Usuário já existe para personId=" + personId);
@@ -118,6 +118,7 @@ public class UserAuthenticationService implements UserDetailsService {
         UserRole roleToSave = UserRole.valueOf(role);
         newUser.setRole(roleToSave);
         newUser.setIsFirstPassword(true);
+        newUser.setTenantId(tenantId);
 
         userRepository.save(newUser);
 

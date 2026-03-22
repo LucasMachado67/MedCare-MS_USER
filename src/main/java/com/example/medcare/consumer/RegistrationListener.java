@@ -50,7 +50,8 @@ public class RegistrationListener {
             service.createUserCredentials(
                     event.person_id(),
                     event.username(),
-                    event.role()
+                    event.role(),
+                    event.tenantID()
             );
 
         } catch (Exception e) {
