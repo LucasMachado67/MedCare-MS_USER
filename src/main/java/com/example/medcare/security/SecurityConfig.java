@@ -60,11 +60,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/signup").permitAll()
+                .requestMatchers(HttpMethod.POST, "/company/create").permitAll()
                 .requestMatchers(HttpMethod.GET, "/auth/validate", "/auth/all").permitAll()
                 .requestMatchers( "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/error").permitAll()
+                                .requestMatchers("/auth/update-password").permitAll()
                 .requestMatchers(HttpMethod.POST, "/person/create").permitAll()
-                // .requestMatchers(HttpMethod.GET, "/auth/me").permitAll()
                                 .requestMatchers("/medic/**").authenticated()
                                 .requestMatchers("/patient/**").authenticated()
                 .anyRequest().authenticated()

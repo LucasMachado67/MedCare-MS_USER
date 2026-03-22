@@ -17,5 +17,6 @@ public record LoginResponseDTO(String token,
                                String email,
                                long personId,
                                UserRole role,
+                               String tenantId,
                                boolean mustChangePassword) {
 } 

@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.medcare.dto.AuthenticationDTO;
@@ -50,6 +52,7 @@ import jakarta.validation.Valid;
  * </p>
  */
 @Service
+@Validated
 public class UserAuthenticationService implements UserDetailsService {
 
     // Injeção do repository para acesso ao banco de dados
@@ -95,7 +98,7 @@ public class UserAuthenticationService implements UserDetailsService {
      * @param email    e-mail que será usado como username para 'login'.
      * @param role     papel do usuário no sistema (ex.: ADMIN, MEDIC, PATIENT).
      */
-    public void createUserCredentials(Long personId, String email, String role) throws JsonProcessingException {
+    public void createUserCredentials(Long personId, String email, String role, String tenantId) throws JsonProcessingException {
 
         if (userRepository.findByPersonId(personId) != null) {
             System.out.println("Usuário já existe para personId=" + personId);
@@ -114,6 +117,8 @@ public class UserAuthenticationService implements UserDetailsService {
         // Ex: "MEDIC" -> "ROLE_MEDIC"
         UserRole roleToSave = UserRole.valueOf(role);
         newUser.setRole(roleToSave);
+        newUser.setIsFirstPassword(true);
+        newUser.setTenantId(tenantId);
 
         userRepository.save(newUser);
 
@@ -134,8 +139,10 @@ public class UserAuthenticationService implements UserDetailsService {
      * @throws UsernameNotFoundException se o usuário não existir.
      */
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserDetails user = userRepository.findByEmail(email);
+        System.out.println(user);
         if (user == null) {
             throw new UsernameNotFoundException("Usuário não encontrado");
         }
@@ -178,6 +185,7 @@ public class UserAuthenticationService implements UserDetailsService {
                     user.getUsername(),
                     user.getPersonId(),
                     user.getRole(),
+                    user.getTenantId(),
                     user.IsFirstPassword());
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Credenciais inválidas: " + e.getLocalizedMessage());
@@ -199,7 +207,7 @@ public class UserAuthenticationService implements UserDetailsService {
      * @param registerDTO informações do novo usuário.
      * @throws UsernameAlreadyExistsException se o username já existir.
      */
-    public void register(RegisterRequestDTO registerDTO) {
+    public void register(RegisterRequestDTO registerDTO, String tenantId) {
 
         try {
             // Validação: Verifica se o usuário já existe
@@ -215,6 +223,7 @@ public class UserAuthenticationService implements UserDetailsService {
             newUser.setPassword(encryptedPassword);
             newUser.setPersonId(registerDTO.getPersonId());
             newUser.setRole(registerDTO.getUserRole());
+            newUser.setTenantId(tenantId);
             // Salva o novo usuário
             userRepository.save(newUser);
         } catch (UsernameAlreadyExistsException e) {

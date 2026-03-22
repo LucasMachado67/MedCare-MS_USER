@@ -57,5 +57,6 @@ public interface UserMapper {
      */
     @Mapping(target = "authorities", ignore = true)
     @Mapping(target = "role", ignore = true)
+    @Mapping(target = "isFirstPassword", ignore = true)
     User toUser(RegisterRequestDTO dto);
 }

@@ -50,12 +50,12 @@ public class RegistrationListener {
             service.createUserCredentials(
                     event.person_id(),
                     event.username(),
-                    event.role()
+                    event.role(),
+                    event.tenantID()
             );
 
         } catch (Exception e) {
             System.err.println("Erro ao processar evento de registro: " + e.getMessage());
-            // Aqui você poderia tratar redrive ou dead letter queues
         }
     }
 }

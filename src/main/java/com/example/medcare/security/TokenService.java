@@ -42,6 +42,7 @@ public class TokenService {
             Map<String, Object> claims = new HashMap<>();
             claims.put("role", user.getRole().name());
             claims.put("mustChangePassword", user.IsFirstPassword());
+            claims.put("tenantId", user.getTenantId());
             return Jwts.builder()
                         .setIssuer("auth") // Nome do emissor (Issuer)
                         .setClaims(claims)
@@ -69,10 +70,10 @@ public class TokenService {
                 .getBody()
                 .getSubject(); // Retorna o Subject (username)
 
-    } catch (Exception e) {
-            System.out.println("Authentication token invalid: " + e.getMessage());
-        return null; // Token inválido
-    }
+        } catch (Exception e) {
+                System.out.println("Authentication token invalid: " + e.getMessage());
+            return null; // Token inválido
+        }
 
     }
 
