@@ -51,7 +51,7 @@ public class RegistrationListener {
                     event.person_id(),
                     event.username(),
                     event.role(),
-                    event.tenantID()
+                    event.tenantId()
             );
 
         } catch (Exception e) {

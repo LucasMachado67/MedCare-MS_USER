@@ -80,9 +80,8 @@ public class User extends BaseTenant implements UserDetails {
      *
      * <p>É único para garantir que cada pessoa tenha apenas uma conta de autenticação.</p>
      */
-    @NotNull
-    @Column(unique = true)
-    private long personId;
+    @Column(nullable = true, unique = true)
+    private Long personId;
     /**
      * Varíavel que será verdadeira quando o usuário for criado automáticamente pelo sistema e
      * fará com que troque de senha no primeiro acesso.
@@ -97,9 +96,9 @@ public class User extends BaseTenant implements UserDetails {
         return this.id;
     }
 
-    public UUID setId(){
-        return this.id;
-    }   
+    public void setId(UUID id){
+        this.id = id;
+    }
 
     public void setEmail(String email) {
         this.email = email;
@@ -114,10 +113,10 @@ public class User extends BaseTenant implements UserDetails {
         this.role = role;
     }
     
-    public long getPersonId() {
+    public Long getPersonId() {
         return personId;
     }
-    public void setPersonId(long personId) {
+    public void setPersonId(Long personId) {
         this.personId = personId;
     }
     @Override

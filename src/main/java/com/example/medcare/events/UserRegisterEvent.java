@@ -24,5 +24,5 @@ public record UserRegisterEvent(
         Long person_id,
         String username,
         String role,
-        String tenantID
+        String tenantId
 ) {}

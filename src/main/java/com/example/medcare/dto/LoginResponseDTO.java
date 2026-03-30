@@ -15,7 +15,7 @@ import com.example.medcare.enums.UserRole;
  */
 public record LoginResponseDTO(String token,
                                String email,
-                               long personId,
+                               Long personId,
                                UserRole role,
                                String tenantId,
                                boolean mustChangePassword) {
